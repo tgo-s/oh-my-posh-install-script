@@ -2,6 +2,10 @@
 
 set -e  # Exit on error
 
+# Default theme
+DEFAULT_THEME="jandedobbeleer.omp.json"
+THEME="${1:-$DEFAULT_THEME}"
+
 echo "🔄 Updating package list..."
 sudo apt update
 
@@ -20,10 +24,16 @@ unzip -o themes.zip -d ~/.poshthemes
 chmod u+rw ~/.poshthemes/*.omp.json
 rm themes.zip
 
-echo "⚙️ Adding Oh My Posh to shell..."
+# Validate theme exists
+if [ ! -f "$HOME/.poshthemes/$THEME" ]; then
+    echo "⚠️ Theme '$THEME' not found. Falling back to default: $DEFAULT_THEME"
+    THEME="$DEFAULT_THEME"
+fi
+
+echo "⚙️ Adding Oh My Posh to shell with theme: $THEME"
 PROFILE_FILE="$HOME/.bashrc"
 if ! grep -q "oh-my-posh" "$PROFILE_FILE"; then
-    echo 'eval "$(oh-my-posh init bash --config ~/.poshthemes/rudolfs-dark.omp.json)"' >> "$PROFILE_FILE"
+    echo "eval \"\$(oh-my-posh init bash --config ~/.poshthemes/$THEME)\"" >> "$PROFILE_FILE"
     echo "✅ Oh My Posh added to $PROFILE_FILE"
 else
     echo "ℹ️ Oh My Posh already configured in $PROFILE_FILE"
